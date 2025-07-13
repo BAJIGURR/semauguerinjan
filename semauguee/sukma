@@ -15,7 +15,7 @@ local coords = {
     {name = "Camp 1", vec = Vector3.new(  81.66 , 133.30, -546.96)},
     {name = "Camp 2", vec = Vector3.new(  39.93 , 493.00,  150.15)},
     {name = "Camp 3", vec = Vector3.new(-443.70 , 173.11,  616.88)},
-    {name = "Summit", vec = Vector3.new(  80.82 , 665.00,  532.44)}
+    {name = "Summit", vec = Vector3.new(  71.19, 661.07 532.96)}
 }
 
 --===[ FRAME & TITLE ]===--
