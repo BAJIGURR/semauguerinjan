@@ -10,8 +10,8 @@ gui.Name, gui.ResetOnSpawn = "TeleportMenu", false
 local coords = {
     {name = "Camp 1", vec = Vector3.new(3359.6973 , 9032.997 , 5637.6807)},
     {name = "Camp 2", vec = Vector3.new(3077.6599 , 9108.997 , 4458.3306)},
-    {name = "Camp 3", vec = Vector3.new(1876.1157 , 9552.996 , 3490.1377)},
-    {name = "Camp 4", vec = Vector3.new(1370.0759 , 9776.997 , 3129.3938)},
+    {name = "Camp 3", vec = Vector3.new(1876.670166015625, 9552.99609375, 3491.603271484375)},
+    {name = "Camp 4", vec = Vector3.new(1371.210693359375, 9776.9970703125, 3129.75634765625)},
     {name = "Camp 5", vec = Vector3.new(1191       , 10122.33 , 2297      )},
     {name = "Summit",  vec = Vector3.new(-116      , 10825.855, 3022      )}
 }
