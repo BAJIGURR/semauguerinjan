@@ -1,134 +1,98 @@
-
 --===[ INIT ]===--
-local player = game.Players.LocalPlayer
-local hrp = player.Character:WaitForChild("HumanoidRootPart")
-local UIS = game:GetService("UserInputService")
+local plr  = game.Players.LocalPlayer
+local hrp  = plr.Character:WaitForChild("HumanoidRootPart")
+local UIS  = game:GetService("UserInputService")
 
-local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.Name = "TeleportMenu"
-gui.ResetOnSpawn = false
+local gui  = Instance.new("ScreenGui", game.CoreGui)
+gui.Name, gui.ResetOnSpawn = "TeleportMenu", false
 
---===[ UI FRAME UTAMA ]===--
-local mainFrame = Instance.new("Frame", gui)
-mainFrame.Size = UDim2.new(0, 240, 0, 320)
-mainFrame.Position = UDim2.new(0, 20, 0, 100)
-mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
+--===[ DATA KOORDINAT CAMP ]===--
+local coords = {
+    ["Camp 1"]  = Vector3.new(3359.697265625 , 9032.9970703125 , 5637.6806640625),
+    ["Camp 2"]  = Vector3.new(3077.659912109375, 9108.9970703125, 4458.33056640625),
+    ["Camp 3"]  = Vector3.new(1876.11572265625 , 9552.99609375  , 3490.1376953125),
+    ["Camp 4"]  = Vector3.new(1370.075927734375, 9776.9970703125, 3129.393798828125),
+    ["Camp 5"]  = Vector3.new(1191, 10122.33, 2297),
+    ["Summit"]  = Vector3.new(-116, 10825.855, 3022),
+}
 
---===[ JUDUL ]===--
-local title = Instance.new("TextLabel", mainFrame)
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-title.Text = "🏔️ Teleport Rinjani"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.SourceSansBold
-title.TextScaled = true
-title.Name = "Title"
+--===[ UI FRAME ]===--
+local btnH, gap, topPad = 40, 5, 55                -- tinggi tombol, jarak, padding atas
+local totalBtns         = #table.getn(coords) + 3   -- teleport btn + grind + stop + toggle
+local frameHeight       = topPad + totalBtns*(btnH+gap) + 10
 
---===[ DRAG FUNCTION ]===--
-local dragging = false
-local dragInput, dragStart, startPos
+local frame = Instance.new("Frame", gui)
+frame.Size            = UDim2.new(0, 265, 0, frameHeight)
+frame.Position        = UDim2.new(0, 20, 0, 90)
+frame.BackgroundColor3= Color3.fromRGB(35,35,35)
+frame.Active          = true
 
-mainFrame.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = mainFrame.Position
+--===[ Title ]===--
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1,0,0,45)
+title.BackgroundColor3 = Color3.fromRGB(25,25,25)
+title.Text = "🏔️ Rinjani Teleport Menu"
+title.TextScaled, title.Font, title.TextColor3 = true, Enum.Font.SourceSansBold, Color3.new(1,1,1)
 
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
+--===[ Drag ]===--
+local dragging, dragStart, startPos = false,nil,nil
+frame.InputBegan:Connect(function(inp)
+    if inp.UserInputType==Enum.UserInputType.MouseButton1 then
+        dragging, dragStart, startPos = true, inp.Position, frame.Position
+        inp.Changed:Connect(function() if inp.UserInputState==Enum.UserInputState.End then dragging=false end end)
+    end
+end)
+UIS.InputChanged:Connect(function(inp)
+    if dragging and inp.UserInputType==Enum.UserInputType.MouseMovement then
+        local d = inp.Position-dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset+d.X, startPos.Y.Scale, startPos.Y.Offset+d.Y)
+    end
 end)
 
-UIS.InputChanged:Connect(function(input)
-	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-		local delta = input.Position - dragStart
-		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-end)
-
---===[ KOORDINAT ]===--
-local pos5 = Vector3.new(1191, 10122.33, 2297)
-local summit = Vector3.new(-116, 10825.855, 3022)
-
---===[ GRINDING ]===--
-local grinding = false
-local grindLoop = nil
-
---===[ FUNGSI BUAT TOMBOL + KOLEKSI UNTUK SHOW/HIDE ]===--
-local allButtons = {}
-
-local function createButton(text, order, callback)
-	local button = Instance.new("TextButton", mainFrame)
-	button.Size = UDim2.new(1, -20, 0, 40)
-	button.Position = UDim2.new(0, 10, 0, 50 + ((order - 1) * 45))
-	button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	button.TextColor3 = Color3.new(1, 1, 1)
-	button.TextScaled = true
-	button.Font = Enum.Font.SourceSansBold
-	button.Text = text
-	button.Name = text
-	button.MouseButton1Click:Connect(callback)
-	table.insert(allButtons, button)
-	return button
+--===[ Helper: membuat tombol ]===--
+local buttons, order = {}, 0
+local function addBtn(text, callback, exclude)
+    order += 1
+    local b = Instance.new("TextButton", frame)
+    b.Size = UDim2.new(1,-20,0,btnH)
+    b.Position = UDim2.new(0,10,0, topPad + (order-1)*(btnH+gap))
+    b.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    b.TextColor3, b.TextScaled, b.Font = Color3.new(1,1,1), true, Enum.Font.SourceSansBold
+    b.Text = text
+    b.MouseButton1Click:Connect(callback)
+    if not exclude then table.insert(buttons,b) end
+    return b
 end
 
---===[ TOMBOL FUNGSI ]===--
-createButton("Teleport ke Pos 5", 1, function()
-	hrp.CFrame = CFrame.new(pos5)
-end)
-
-createButton("Teleport ke Summit", 2, function()
-	hrp.CFrame = CFrame.new(summit)
-end)
-
-createButton("Mulai Grind 🚀", 3, function()
-	if not grinding then
-		grinding = true
-		grindLoop = task.spawn(function()
-			while grinding do
-				hrp.CFrame = CFrame.new(pos5)
-				wait(2)
-				hrp.CFrame = CFrame.new(summit)
-				wait(2)
-			end
-		end)
-	end
-end)
-
-createButton("Stop Grind ⏹️", 4, function()
-	grinding = false
-	if grindLoop then
-		task.cancel(grindLoop)
-		grindLoop = nil
-	end
-end)
-
---===[ TOMBOL TOGGLE SEMBUNYI - TIDAK DISIMPAN DI allButtons ]===--
-local function createToggleButton(text, order, callback)
-	local button = Instance.new("TextButton", mainFrame)
-	button.Size = UDim2.new(1, -20, 0, 40)
-	button.Position = UDim2.new(0, 10, 0, 50 + ((order - 1) * 45))
-	button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	button.TextColor3 = Color3.new(1, 1, 1)
-	button.TextScaled = true
-	button.Font = Enum.Font.SourceSansBold
-	button.Text = text
-	button.Name = text
-	button.MouseButton1Click:Connect(callback)
-	return button
+--===[ Teleport buttons ]===--
+for name,vec in pairs(coords) do
+    addBtn("Teleport "..name, function() hrp.CFrame = CFrame.new(vec) end)
 end
 
---===[ Tombol Sembunyikan GUI ]===--
-local isHidden = false
-local toggleBtn = createToggleButton("🔒 Sembunyikan GUI", 5, function()
-	isHidden = not isHidden
-	for _, btn in ipairs(allButtons) do
-		btn.Visible = not isHidden
-	end
-	toggleBtn.Text = isHidden and "🔓 Tampilkan GUI" or "🔒 Sembunyikan GUI"
+--===[ Grind logic ]===--
+local grinding, grindTask = false,nil
+local pos5, summit = coords["Camp 5"], coords["Summit"]
+
+addBtn("Mulai Grind 🚀 (5↔Summit)", function()
+    if not grinding then
+        grinding = true
+        grindTask = task.spawn(function()
+            while grinding do
+                hrp.CFrame = CFrame.new(pos5) ; task.wait(2)
+                hrp.CFrame = CFrame.new(summit) ; task.wait(2)
+            end
+        end)
+    end
 end)
+
+addBtn("Stop Grind ⏹️", function()
+    grinding=false
+    if grindTask then task.cancel(grindTask) end
+end)
+
+--===[ Toggle show/hide ]===--
+local hidden=false
+addBtn("🔒 Hide / Show Buttons", function()
+    hidden = not hidden
+    for _,b in ipairs(buttons) do b.Visible = not hidden end
+end, true) -- exclude = true → tombol ini tidak ikut disembunyikan
