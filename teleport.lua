@@ -16,18 +16,19 @@ local coords = {
     {name = "Summit",  vec = Vector3.new(-116      , 10825.855, 3022      )}
 }
 
---===[ TOGGLE SHOW/HIDE ]===--
-local hidden = false
-addBtn("🔒 Hide / Show Buttons", function()
-    hidden = not hidden
-    for _,b in ipairs(buttons) do b.Visible = not hidden end
+--===[ FRAME & TITLE ]===--
+local btnH, gap, padTop = 40, 5, 50
+local totalBtns = #coords + 3                    -- teleport buttons + Grind + Stop + Toggle
+local frameH    = padTop + totalBtns*(btnH+gap) + 10
 
-    -- ubah ukuran frame
-    local targetSize = hidden and UDim2.new(0,270,0,collapsedHeight)
-                               or UDim2.new(0,270,0,fullHeight)
-    frame:TweenSize(targetSize, Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
+local frame = Instance.new("Frame", gui)
+frame.Size, frame.Position = UDim2.new(0,270,0,frameH), UDim2.new(0,20,0,90)
+frame.BackgroundColor3, frame.Active = Color3.fromRGB(35,35,35), true
 
-end, true) -- exclude supaya tidak ikut disembunyikan
+local title = Instance.new("TextLabel", frame)
+title.Size, title.BackgroundColor3 = UDim2.new(1,0,0,45), Color3.fromRGB(25,25,25)
+title.Text, title.TextScaled, title.Font, title.TextColor3 =
+    "🏔️ Rinjani Teleport Menu", true, Enum.Font.SourceSansBold, Color3.new(1,1,1)
 
 --===[ DRAG SUPPORT ]===--
 local dragging, dragStart, startPos = false
