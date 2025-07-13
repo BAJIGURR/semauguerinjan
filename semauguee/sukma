@@ -84,7 +84,7 @@ addBtn("Mulai Grind 🚀 (C1→Summit)", function()
             for _,c in ipairs(coords) do
                 if not grinding then break end
                 hrp.CFrame = CFrame.new(c.vec)
-                task.wait(0.75)
+                task.wait0.03)
             end
         end
     end)
