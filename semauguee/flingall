@@ -1,5 +1,16 @@
 local Targets = {"All"} -- "All", "Target Name", "arian_was_here"
 
+local lp = game:GetService("Players").LocalPlayer
+local char = lp.Character or lp.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")
+
+-- Bikin loop untuk selalu isi ulang nyawa
+while true do
+    hum.Health = hum.MaxHealth
+    task.wait(0.1)
+end
+
+
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
